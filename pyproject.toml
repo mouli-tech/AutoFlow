@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autoflow"
+version = "0.1.0"
+description = "Personal workflow automation engine for Linux"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "sqlalchemy>=2.0.0",
+    "apscheduler>=3.10.0",
+    "google-api-python-client>=2.100.0",
+    "google-auth-oauthlib>=1.1.0",
+    "pyyaml>=6.0",
+    "pydantic>=2.0.0",
+    "click>=8.1.0",
+    "aiosqlite>=0.19.0",
+    "rich>=13.0.0",
+    "openai>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "httpx>=0.25.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[project.scripts]
+autoflow = "autoflow.main:cli"
+
+[tool.setuptools.packages.find]
+include = ["autoflow*"]
+
+# Plugin entry points — external packages can register actions here:
+# [project.entry-points."autoflow.actions"]
+# my_action = "my_package.actions:MyAction"

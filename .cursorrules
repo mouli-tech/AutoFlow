@@ -1,0 +1,10 @@
+# AutoFlow Project Rules
+
+## Git Commit Messages
+All commit messages must strictly follow this prefix structure:
+- Features/Additions: `[ADD] : <message>`  (do not use `feat:`)
+- Fixes/Corrections: `[FIX] : <message>` (do not use `fix:`)
+
+Example:
+`[ADD] : start command and rich terminal UI`
+`[FIX] : uniform hexagon logo and update copyright`
