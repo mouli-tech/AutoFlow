@@ -54,4 +54,4 @@ class StepContext:
         """
         if self.executor is None:
             raise RuntimeError("No executor available for nested step execution")
-        return self.executor.execute_steps(steps)
+        return self.executor.execute_steps(steps, context=self)

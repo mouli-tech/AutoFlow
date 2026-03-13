@@ -27,7 +27,7 @@ class NotifyAction(BaseAction):
         cmd = ["notify-send", "--urgency", urgency, "--icon", icon, "--expire-time", str(timeout_ms), title, message]
 
         try:
-            subprocess.run(cmd, check=True, capture_output=True)
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
             return ActionResult(success=True, message=f"Sent: {title}")
         except FileNotFoundError:
             return ActionResult(success=False, message="notify-send not found (apt install libnotify-bin)")

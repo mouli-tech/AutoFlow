@@ -104,7 +104,7 @@ class WorkflowExecutor:
 
     def _execute_parallel(self, steps: List[WorkflowStep], context: StepContext) -> List[StepResult]:
         """Execute steps concurrently using ThreadPoolExecutor."""
-        results: List[StepResult] = [None] * len(steps)  # type: ignore
+        results: List[Optional[StepResult]] = [None] * len(steps)
 
         with ThreadPoolExecutor(max_workers=min(len(steps), 8)) as pool:
             future_to_idx = {}
@@ -126,7 +126,7 @@ class WorkflowExecutor:
                         message=f"Parallel execution failed: {e}",
                     )
 
-        return results
+        return [r for r in results if r is not None]
 
     def _execute_dag(self, steps: List[WorkflowStep], context: StepContext) -> List[StepResult]:
         """Execute steps respecting depends_on ordering.

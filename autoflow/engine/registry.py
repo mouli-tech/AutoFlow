@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import logging
 import pkgutil
+import threading
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -27,12 +28,15 @@ class ActionRegistry:
     _instance: ActionRegistry | None = None
     _actions: dict
     _discovered: bool
+    _lock = threading.Lock()
 
     def __new__(cls) -> ActionRegistry:
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._actions = {}
-            cls._instance._discovered = False
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._actions = {}
+                    cls._instance._discovered = False
         return cls._instance
 
     def register(self, name: str, action_class: type[BaseAction]) -> None:

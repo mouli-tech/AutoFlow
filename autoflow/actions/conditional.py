@@ -95,7 +95,20 @@ class ConditionalAction(BaseAction):
                                "==": ctx_num == cmp_num, ">": ctx_num > cmp_num, "<": ctx_num < cmp_num}
                         return ops[op]
                     except (ValueError, TypeError):
-                        return str(ctx_val) == compare_val if op == "==" else str(ctx_val) != compare_val
+                        str_val = str(ctx_val)
+                        if op == "==":
+                            return str_val == compare_val
+                        elif op == "!=":
+                            return str_val != compare_val
+                        elif op == ">":
+                            return str_val > compare_val
+                        elif op == "<":
+                            return str_val < compare_val
+                        elif op == ">=":
+                            return str_val >= compare_val
+                        elif op == "<=":
+                            return str_val <= compare_val
+                        return False
 
         val = variables.get(condition)
         return bool(val) if val is not None else False

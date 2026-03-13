@@ -21,7 +21,10 @@ LOG_DIR = AUTOFLOW_HOME / "logs"
 LOG_FILE = LOG_DIR / "autoflow.log"
 
 HOST = os.environ.get("AUTOFLOW_HOST", "127.0.0.1")
-PORT = int(os.environ.get("AUTOFLOW_PORT", "8000"))
+try:
+    PORT = int(os.environ.get("AUTOFLOW_PORT", "8000"))
+except (ValueError, TypeError):
+    PORT = 8000
 PID_FILE = AUTOFLOW_HOME / "autoflow.pid"
 AI_SETTINGS_FILE = AUTOFLOW_HOME / "ai_settings.json"
 

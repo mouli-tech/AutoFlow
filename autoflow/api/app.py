@@ -17,6 +17,8 @@ log = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # NOTE: These synchronous calls block the event loop during startup.
+    # This is acceptable because no requests are served until after yield.
     log.info("AutoFlow starting up")
     init_db()
     registry.discover()

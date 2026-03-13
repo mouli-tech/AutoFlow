@@ -39,7 +39,15 @@ class WorkflowScheduler:
             self._jobs[workflow_id] = job.id
 
         elif trigger_type == "login":
-            callback()
+            # "login" trigger = run once when the autoflow daemon starts.
+            # AutoFlow installs itself as an XDG autostart entry, so daemon
+            # start effectively means "user logged in." Schedule as a one-shot
+            # job with a short delay to allow startup to complete.
+            from datetime import datetime, timedelta
+            from apscheduler.triggers.date import DateTrigger
+            run_at = datetime.now() + timedelta(seconds=5)
+            job = self.scheduler.add_job(callback, DateTrigger(run_date=run_at), id=workflow_id)
+            self._jobs[workflow_id] = job.id
 
         elif trigger_type == "manual":
             pass

@@ -32,7 +32,7 @@ def get_settings():
 @router.post("/settings")
 def save_settings(settings: AISettings):
     try:
-        AI_SETTINGS_FILE.write_text(settings.json())
+        AI_SETTINGS_FILE.write_text(settings.model_dump_json())
         return {"status": "success"}
     except Exception as e:
         log.error(f"Failed to save AI settings: {e}")
@@ -117,7 +117,13 @@ def generate_workflow(request: GenerateRequest):
             content = content[:-3]
             
         content = content.strip()
-        
+
+        if not content:
+            raise HTTPException(
+                status_code=500,
+                detail="AI returned empty response after removing markdown fences",
+            )
+
         parsed = json.loads(content)
         
         # Normalize: the small LLM may return partial structures

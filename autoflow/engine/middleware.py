@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import logging
 import time
-import signal
 from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional
 
@@ -69,27 +69,26 @@ class LoggingMiddleware(StepMiddleware):
 
 
 class TimeoutMiddleware(StepMiddleware):
-    """Enforces a timeout on step execution using SIGALRM (Unix only)."""
+    """Enforces a timeout on step execution using concurrent.futures.
+
+    Uses a thread-based approach instead of SIGALRM so it works in both
+    the main thread and worker threads (e.g., during parallel execution).
+    """
 
     def __call__(self, params, context, next_fn, step_config):
         timeout = step_config.get("timeout")
         if not timeout or timeout <= 0:
             return next_fn(params, context)
 
-        def _handler(signum, frame):
-            raise TimeoutError(f"Step timed out after {timeout}s")
-
-        old_handler = signal.signal(signal.SIGALRM, _handler)
-        signal.alarm(int(timeout))
-        try:
-            result = next_fn(params, context)
-        except TimeoutError as e:
-            result = ActionResult(success=False, message=str(e))
-        finally:
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, old_handler)
-
-        return result
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(next_fn, params, context)
+            try:
+                return future.result(timeout=timeout)
+            except (TimeoutError, FuturesTimeoutError):
+                return ActionResult(
+                    success=False,
+                    message=f"Step timed out after {timeout}s",
+                )
 
 
 class RetryMiddleware(StepMiddleware):

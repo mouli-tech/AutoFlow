@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from autoflow.api.database import get_db
-from autoflow.db.models import ExecutionLogModel
+from autoflow.db.models import ExecutionLogModel, WorkflowModel
 from autoflow.engine.executor import WorkflowExecutor
 from autoflow.engine.workflow import Workflow
 from autoflow.api.routes.workflows import get_service
@@ -26,8 +26,11 @@ def run_workflow(workflow_name: str, db: Session = Depends(get_db)):
     definition = wf.to_dict()
     wf_name = wf.name
 
+    wf_model = db.query(WorkflowModel).filter(WorkflowModel.name == wf_name).first()
+    wf_db_id = wf_model.id if wf_model else 0
+
     log_entry = ExecutionLogModel(
-        workflow_id=0,  # No longer tied to DB id
+        workflow_id=wf_db_id,
         workflow_name=wf_name,
         status="running",
         started_at=datetime.now(timezone.utc),
